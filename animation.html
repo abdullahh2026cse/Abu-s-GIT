@@ -1,0 +1,45 @@
+<html>
+    <head>
+         <title>Animation</title>
+         <style>
+            .box{
+                width: 100px;
+                height: 100px;
+                background-color: blue;
+                animation: move 5s infinite alternate;
+            }
+
+            .circle{
+                width: 100px;
+                height: 100px;
+                background-color: red;
+                border-radius: 50%;
+                animation: move1 2s infinite alternate;
+            }
+
+            @keyframes move{
+                from{
+                    transform: translateX(500px);
+                }
+                to{
+                    transform: translateX(0);
+                }
+
+            }
+
+            @keyframes move1{
+                from{
+                    transform: translateY(0);
+                }
+                to{
+                    transform: translateY(500px);
+                }
+            }
+            
+         </style>
+    </head>
+    <body>
+         <div class="box" ></div>
+         <div class="circle" > </div>
+    </body>
+</html>
