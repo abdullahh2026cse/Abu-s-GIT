@@ -1,0 +1,225 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#087f8c" />
+  <title>Stack Overflowers — Medicine Reminder</title>
+  <style>
+    :root { font-family: Arial, sans-serif; color: #173042; background: #eef4f5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; }
+    button { border: 0; border-radius: 9px; padding: 12px 16px; font: inherit; font-weight: 700; cursor: pointer; }
+    .splash { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(145deg, #e7f4f2, #f5faf9); text-align: center; }
+    .splash-card { width: min(100%, 460px); padding: 38px 28px; background: white; border: 1px solid #d6e2e5; border-radius: 24px; box-shadow: 0 14px 38px #193b4c14; }
+    .brand-icon { width: 142px; height: 142px; margin: 0 auto 20px; display: block; }
+    .brand-name { margin: 0; font-size: clamp(30px, 8vw, 42px); line-height: 1.08; color: #087f8c; }
+    .tagline { color: #58717b; margin: 12px 0 26px; }
+    .open-button { width: 100%; padding: 15px; background: #087f8c; color: white; font-size: 17px; }
+    .open-button:hover, .primary:hover { background: #066b76; }
+    .prototype-note { margin: 18px 0 0; font-size: 12px; color: #71858c; line-height: 1.5; }
+    #app { padding: 24px; }
+    [hidden] { display: none !important; }
+    main { max-width: 920px; margin: auto; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    .intro { margin: 0 0 22px; color: #4d6672; line-height: 1.5; }
+    .layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+    section, .phone { background: white; border: 1px solid #d6e2e5; border-radius: 16px; padding: 22px; box-shadow: 0 8px 24px #193b4c0d; }
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+    .wide { grid-column: 1 / -1; }
+    label { display: block; font-weight: 700; margin: 16px 0 7px; }
+    input, textarea { width: 100%; border: 1px solid #aabdc3; border-radius: 8px; padding: 11px; font: inherit; }
+    textarea { min-height: 74px; resize: vertical; }
+    .primary { margin-top: 18px; width: 100%; background: #087f8c; color: white; }
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+    .key { background: #e8f0f2; color: #173042; min-height: 48px; font-size: 18px; }
+    .key:hover { background: #d7e7ea; }
+    .phone { background: #183944; color: white; text-align: center; }
+    .screen { min-height: 170px; border-radius: 12px; background: #e6f5e9; color: #123b2b; padding: 16px; display: flex; flex-direction: column; justify-content: center; }
+    .status { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: #426557; }
+    #callText { margin-top: 12px; line-height: 1.45; }
+    .call-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .call-actions button { flex: 1; }
+    .answer { background: #31a66a; color: white; }
+    .end { background: #d84d56; color: white; }
+    .note { margin: 14px 0 0; color: #c2d7dc; font-size: 13px; line-height: 1.45; }
+    #feedback { min-height: 24px; margin: 12px 0 0; color: #075c4e; font-weight: 700; }
+    .disclaimer { margin-top: 18px; font-size: 13px; color: #58717b; }
+    .back-button { background: transparent; color: #087f8c; padding-left: 0; margin-bottom: 12px; }
+    @media (max-width: 700px) {
+      #app { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .phone { max-width: 380px; width: 100%; margin: auto; }
+      .fields { grid-template-columns: 1fr; }
+      .wide { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <section class="splash" id="splash" aria-label="App opening screen">
+    <div class="splash-card">
+      <svg class="brand-icon" viewBox="0 0 276 276" role="img" aria-label="Stack Overflowers medicine reminder icon">
+        <rect width="276" height="276" rx="68" fill="#087F8C"/>
+        <rect x="68" y="29" width="140" height="218" rx="25" fill="#FFFFFF"/>
+        <rect x="117" y="43" width="42" height="7" rx="3.5" fill="#C7E6E4"/>
+        <circle cx="138" cy="224" r="9" fill="#C7E6E4"/>
+        <circle cx="183" cy="91" r="47" fill="#E1F3F0" stroke="#087F8C" stroke-width="7"/>
+        <path d="M183 65v28l19 13" fill="none" stroke="#087F8C" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+        <g transform="translate(85 137) rotate(-35 53 25)">
+          <rect width="106" height="50" rx="25" fill="#F4A340"/>
+          <path d="M53 1v48" stroke="#FFFFFF" stroke-width="5"/>
+          <path d="M25 1h28v48H25A24 24 0 0 1 1 25 24 24 0 0 1 25 1Z" fill="#FFFFFF" opacity=".9"/>
+        </g>
+      </svg>
+
+      <h1 class="brand-name">Stack<br/>Overflowers</h1>
+      <p class="tagline">Medicine Reminder</p>
+      <button class="open-button" id="openApp">Open Reminder App</button>
+      <p class="prototype-note">Prototype only. This demo does not make real calls or store patient information.</p>
+    </div>
+  </section>
+
+  <div id="app" hidden>
+    <main>
+      <button class="back-button" id="backHome">← Home</button>
+      <h1>Medical reminder call</h1>
+      <p class="intro">Register a demo patient and simulate a medication reminder call to a basic button phone.</p>
+
+      <div class="layout">
+        <section aria-label="Patient registration and reminder setup">
+          <h2>Patient registration</h2>
+          <div class="fields">
+            <div><label for="patientName">Patient name</label><input id="patientName" autocomplete="name" placeholder="e.g. Alex Kumar" /></div>
+            <div><label for="phoneNumber">Phone number</label><input id="phoneNumber" type="tel" autocomplete="tel" placeholder="e.g. 555-0100" /></div>
+            <div><label for="age">Age</label><input id="age" type="number" min="0" max="120" placeholder="Age in years" /></div>
+            <div><label for="time">Call reminder time</label><input id="time" type="time" /></div>
+            <div><label for="intakeTime">Medicine intake time</label><input id="intakeTime" type="time" /></div>
+            <div class="wide"><label for="address">Address</label><textarea id="address" autocomplete="street-address" placeholder="Patient address"></textarea></div>
+            <div class="wide"><label for="medicines">Medicines</label><textarea id="medicines" placeholder="Medicine name and instructions"></textarea></div>
+            <div class="wide"><label for="reminder">Call reminder message</label><textarea id="reminder">It is time to take your medicine.</textarea></div>
+          </div>
+
+          <button class="primary" id="startCall">Save details and start demo call</button>
+          <p id="feedback" role="status"></p>
+          <p class="disclaimer">Demo only: details stay in this browser page and are not saved or sent anywhere. Do not enter real patient information.</p>
+        </section>
+
+        <aside class="phone" aria-label="Button phone call simulation">
+          <h2>Button phone</h2>
+          <div class="screen" aria-live="polite">
+            <div class="status" id="status">Waiting for demo call</div>
+            <div id="callText">Enter demo patient details, then start the demo call.</div>
+          </div>
+          <div class="call-actions">
+            <button class="answer" id="answer" disabled>Answer</button>
+            <button class="end" id="end" disabled>End call</button>
+          </div>
+          <div class="keypad" aria-label="Phone keypad">
+            <button class="key" data-key="1">1</button><button class="key" data-key="2">2</button><button class="key" data-key="3">3</button>
+            <button class="key" data-key="4">4</button><button class="key" data-key="5">5</button><button class="key" data-key="6">6</button>
+            <button class="key" data-key="7">7</button><button class="key" data-key="8">8</button><button class="key" data-key="9">9</button>
+            <button class="key" data-key="*">*</button><button class="key" data-key="0">0</button><button class="key" data-key="#">#</button>
+          </div>
+          <p class="note">During the call, press 1 to confirm you heard the reminder.</p>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const splash = document.querySelector('#splash');
+    const app = document.querySelector('#app');
+
+    document.querySelector('#openApp').addEventListener('click', () => {
+      splash.hidden = true;
+      app.hidden = false;
+      window.scrollTo(0, 0);
+    });
+
+    document.querySelector('#backHome').addEventListener('click', () => {
+      app.hidden = true;
+      splash.hidden = false;
+      window.scrollTo(0, 0);
+    });
+
+    const start = document.querySelector('#startCall');
+    const answer = document.querySelector('#answer');
+    const end = document.querySelector('#end');
+    const status = document.querySelector('#status');
+    const callText = document.querySelector('#callText');
+    const feedback = document.querySelector('#feedback');
+
+    let active = false;
+    let answered = false;
+
+    function finish(message) {
+      active = false;
+      answered = false;
+      status.textContent = 'Call ended';
+      callText.textContent = message;
+      answer.disabled = true;
+      end.disabled = true;
+    }
+
+    start.addEventListener('click', () => {
+      const name = document.querySelector('#patientName').value.trim();
+      const number = document.querySelector('#phoneNumber').value.trim();
+      const age = document.querySelector('#age').value.trim();
+      const intakeTime = document.querySelector('#intakeTime').value;
+      const address = document.querySelector('#address').value.trim();
+      const medicines = document.querySelector('#medicines').value.trim();
+      const reminder = document.querySelector('#reminder').value.trim();
+
+      if (!name || !number || !age || !address || !medicines || !reminder || !intakeTime) {
+        feedback.textContent = 'Please fill in all patient and reminder fields to continue.';
+        return;
+      }
+
+      feedback.textContent = `Demo registration ready for ${name}, age ${age}.`;
+      active = true;
+      answered = false;
+      status.textContent = 'Incoming call';
+      callText.textContent = `Calling ${number}…`;
+      answer.disabled = false;
+      end.disabled = false;
+    });
+
+    answer.addEventListener('click', () => {
+      if (!active) return;
+
+      answered = true;
+      status.textContent = 'Call connected';
+
+      const name = document.querySelector('#patientName').value.trim();
+      const reminder = document.querySelector('#reminder').value.trim();
+      const medicines = document.querySelector('#medicines').value.trim();
+      const intakeTime = document.querySelector('#intakeTime').value;
+
+      callText.textContent =
+        `Hello ${name}. ${reminder} Medicine details: ${medicines}. ` +
+        `Your medicine intake time is ${intakeTime}. Press 1 to confirm you heard this reminder.`;
+    });
+
+    end.addEventListener('click', () => {
+      if (active) finish('The call was ended.');
+    });
+
+    document.querySelectorAll('[data-key]').forEach(button => {
+      button.addEventListener('click', () => {
+        if (!active || !answered) {
+          feedback.textContent = 'Start and answer the demo call before using the keypad.';
+          return;
+        }
+
+        if (button.dataset.key === '1') {
+          finish('Thank you. Your reminder is confirmed.');
+        } else {
+          feedback.textContent = `You pressed ${button.dataset.key}. Press 1 to confirm.`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+```

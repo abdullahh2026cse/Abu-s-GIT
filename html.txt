@@ -1,0 +1,14 @@
+<html>
+<body>
+
+
+<style>
+table , th, td {
+border:1px solid black;
+border-collapse: collapse;
+background-color:lightgreen;
+border-radius: 10px;
+}
+</style>
+</body>
+</html>
